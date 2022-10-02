@@ -56,18 +56,17 @@ const OpenTileTracking = (ps) => {
                         var existing = Object.keys(state);
 
                         var short = convertEdgeState(tile);
-                        var pattern = short.replace(/a/g, '.');
 
                         var found = [];
-                        for (var ix of [0,1,2,3,4,5]) {
-                            pattern = rotate(pattern);
-                            var rx = new RegExp(pattern);
-                            found = [
-                                ...found,
-                                ...existing.filter(it => (
-                                    rx.test(it) 
-                                ))
-                            ];
+                        for (var ex of existing) {
+                            var pattern = ex.replace(/a/g, '.');
+                            for (var ix of [0,1,2,3,4,5]) {
+                                pattern = rotate(pattern);
+                                var rx = new RegExp(pattern);
+                                if (rx.test(short)) {
+                                    found.push(ex);
+                                }
+                            }
                         }
 
                         setSearchResult(unique(found));
