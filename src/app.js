@@ -11,7 +11,9 @@ import types from './edge-types';
 import {
     stringifyURLState,
     parseURLState,
-    convertEdgeState
+    convertEdgeState,
+    rotate,
+    unique,
 } from './util';
 
 export const App = (ps) => {
@@ -26,6 +28,7 @@ const OpenTileTracking = (ps) => {
     var location = useLocation();
     var history = useHistory();
     var state = parseURLState(location.search);
+    var [ searchResult, setSearchResult ] = useState([]);
 
     //var [ state, dispatch ] = useReducer(
     //    reducers.openTileTracking,
@@ -33,8 +36,8 @@ const OpenTileTracking = (ps) => {
     //);
 
     return (
-        <div className='d-flex mt-3 ps-5'>
-            <div className='w-50'>
+        <div className='p-5'>
+            <div className='d-flex'>
                 <TileEditor
                     confirmLabel='+ Add Tile'
                     onConfirm={ (tile) => {
@@ -47,18 +50,45 @@ const OpenTileTracking = (ps) => {
                         //dispatch({ type: 'add-tile', payload: { tile } })
                     }}
                 />
-                <OpenTileTrackingList
-                    state={ state }
-                    onUpdate={(next) => {
-                        history.replace({
-                            search: 'ott=' + stringifyURLState(next)
-                        });
+                <TileEditor
+                    confirmLabel='Search'
+                    onConfirm={ (tile) => {
+                        var existing = Object.keys(state);
+
+                        var short = convertEdgeState(tile);
+                        var pattern = short.replace(/a/g, '.');
+
+                        var found = [];
+                        for (var ix of [0,1,2,3,4,5]) {
+                            pattern = rotate(pattern);
+                            var rx = new RegExp(pattern);
+                            found = [
+                                ...found,
+                                ...existing.filter(it => (
+                                    rx.test(it) 
+                                ))
+                            ];
+                        }
+
+                        setSearchResult(unique(found));
                     }}
                 />
-                <pre style={{ border: '1px solid black' }}>
-                    { JSON.stringify(state, null, 4)}
+                <pre className='p-3' style={{ border: '1px solid black'}}>
+                    { JSON.stringify(searchResult, null, 4)}
                 </pre>
             </div>
+
+            <OpenTileTrackingList
+                state={ state }
+                onUpdate={(next) => {
+                    history.replace({
+                        search: 'ott=' + stringifyURLState(next)
+                    });
+                }}
+            />
+            <pre style={{ border: '1px solid black' }}>
+                { JSON.stringify(state, null, 4)}
+            </pre>
         </div>
     );
 }

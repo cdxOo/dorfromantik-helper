@@ -1,5 +1,9 @@
 import types from './edge-types';
 
+export const unique = (ary) => (
+    ary.filter((it, index, self) => self.indexOf(it) === index)
+)
+
 export const rotate = (that) => {
     var clone = [ ...that ];
     var head = clone.shift();
