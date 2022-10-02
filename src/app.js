@@ -25,11 +25,7 @@ export const App = (ps) => {
 const OpenTileTracking = (ps) => {
     var location = useLocation();
     var history = useHistory();
-    console.log(location);
-    console.log(location.key);
-    console.log(location.search);
     var state = parseURLState(location.search);
-    console.log('parsed-state', state);
 
     //var [ state, dispatch ] = useReducer(
     //    reducers.openTileTracking,
@@ -45,7 +41,6 @@ const OpenTileTracking = (ps) => {
                         var updated = reducers.openTileTracking(state, {
                             type: 'add-tile', payload: { tile }
                         });
-                        console.log('updated', updated);
                         history.replace({
                             search: 'ott=' + stringifyURLState(updated)
                         });
@@ -151,7 +146,6 @@ const TileViewer = (ps) => {
     if (typeof edges === 'string') {
         edges = convertEdgeState(edges)
     }
-    console.log(edges);
 
     const positions = [
         { rotate: 0, x: 50, y: 0 },
