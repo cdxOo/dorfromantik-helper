@@ -1,24 +1,64 @@
+import 'url-search-params-polyfill';
+
 import React, { useState, useReducer } from 'react';
+import { Location, useLocation, useHistory } from './location-provider';
+
 import 'reset-css';
 import './style.css';
 import * as reducers from './reducers';
-import types from './edge-types'
+import types from './edge-types';
+
+import {
+    stringifyURLState,
+    parseURLState,
+    convertEdgeState
+} from './util';
 
 export const App = (ps) => {
-    var [ state, dispatch ] = useReducer(
-        reducers.openTileTracking,
-        reducers.openTileTracking.defaults,
+    return (
+        <Location>
+            <OpenTileTracking />
+        </Location>
     );
+}
+
+const OpenTileTracking = (ps) => {
+    var location = useLocation();
+    var history = useHistory();
+    console.log(location);
+    console.log(location.key);
+    console.log(location.search);
+    var state = parseURLState(location.search);
+    console.log('parsed-state', state);
+
+    //var [ state, dispatch ] = useReducer(
+    //    reducers.openTileTracking,
+    //    reducers.openTileTracking.defaults,
+    //);
 
     return (
         <div className='d-flex mt-3 ps-5'>
             <div className='w-50'>
                 <TileEditor
                     confirmLabel='+ Add Tile'
-                    onConfirm={ (tile) => (
-                        dispatch({ type: 'add-tile', payload: { tile } })
-                    )}
+                    onConfirm={ (tile) => {
+                        var updated = reducers.openTileTracking(state, {
+                            type: 'add-tile', payload: { tile }
+                        });
+                        console.log('updated', updated);
+                        history.replace({
+                            search: 'ott=' + stringifyURLState(updated)
+                        });
+                        //dispatch({ type: 'add-tile', payload: { tile } })
+                    }}
                 />
+                <div className='d-flex flex-wrap'>
+                    { Object.keys(state).map((short) => (
+                        <div key={ short }>
+                            <TileViewer edges={ short } />
+                        </div>
+                    ))}
+                </div>
                 <pre style={{ border: '1px solid black' }}>
                     { JSON.stringify(state, null, 4)}
                 </pre>
@@ -26,7 +66,6 @@ export const App = (ps) => {
         </div>
     );
 }
-
 
 const TypeButton = (ps) => {
     var { type, color, isActive, onClick } = ps;
@@ -109,6 +148,10 @@ const TileEditor = (ps) => {
 
 const TileViewer = (ps) => {
     var { edges, onClickEdge } = ps;
+    if (typeof edges === 'string') {
+        edges = convertEdgeState(edges)
+    }
+    console.log(edges);
 
     const positions = [
         { rotate: 0, x: 50, y: 0 },
