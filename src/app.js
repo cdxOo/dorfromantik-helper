@@ -82,8 +82,8 @@ const OpenTileTrackingList = (ps) => {
                             var updated = {
                                 ...state, [short]: state[short] - 1
                             };
-                            if (updated[short] < 0) {
-                                updated[short] = 0;
+                            if (updated[short] <= 0) {
+                                delete updated[short];
                             }
                             onUpdate(updated);
                         }}
