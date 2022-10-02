@@ -37,7 +37,7 @@ export const parseURLState = (search) => {
     if (ottstring) {
         for (var it of ottstring.split(',')) {
             var [ short, count ] = it.split(':');
-            state[short] = count;
+            state[short] = parseInt(count);
         }
     }
     return state;

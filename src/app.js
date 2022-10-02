@@ -47,19 +47,75 @@ const OpenTileTracking = (ps) => {
                         //dispatch({ type: 'add-tile', payload: { tile } })
                     }}
                 />
-                <div className='d-flex flex-wrap'>
-                    { Object.keys(state).map((short) => (
-                        <div key={ short }>
-                            <TileViewer edges={ short } />
-                        </div>
-                    ))}
-                </div>
+                <OpenTileTrackingList
+                    state={ state }
+                    onUpdate={(next) => {
+                        history.replace({
+                            search: 'ott=' + stringifyURLState(next)
+                        });
+                    }}
+                />
                 <pre style={{ border: '1px solid black' }}>
                     { JSON.stringify(state, null, 4)}
                 </pre>
             </div>
         </div>
     );
+}
+
+const OpenTileTrackingList = (ps) => {
+    var { state, onUpdate } = ps;
+    return (
+        <div className='d-flex flex-wrap'>
+            { Object.keys(state).map((short) => (
+                state[short] ? (
+                    <OpenTileTrackingItem
+                        key={ short }
+                        short={ short }
+                        count={ state[short] }
+                        onInc={ () => {
+                            onUpdate({
+                                ...state, [short]: state[short] + 1
+                            })
+                        }}
+                        onDec={ () => {
+                            var updated = {
+                                ...state, [short]: state[short] - 1
+                            };
+                            if (updated[short] < 0) {
+                                updated[short] = 0;
+                            }
+                            onUpdate(updated);
+                        }}
+                    />
+                ) : null
+            ))}
+        </div>
+    )
+}
+
+const OpenTileTrackingItem = (ps) => {
+    var { short, count, onInc, onDec } = ps;
+    return (
+        <div>
+            <div className='d-flex align-items-center' style={{ border: '1px solid black' }}>
+                <span className='p-2 flex-grow-1'>
+                    { count }
+                </span>
+                <a
+                    className='c-pointer bg-green p-2'
+                    role='button'
+                    onClick={ () => onInc(short) }
+                >+</a>
+                <a
+                    className='c-pointer bg-red p-2'
+                    role='button'
+                    onClick={ () => onDec(short) }
+                >-</a>
+            </div>
+            <TileViewer edges={ short } />
+        </div>
+    )
 }
 
 const TypeButton = (ps) => {

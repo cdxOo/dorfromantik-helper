@@ -6,6 +6,18 @@ u {
     text-decoration: underline;
 }
 
+.bg-red {
+    background: red;
+}
+
+.bg-green {
+    background: green;
+}
+
+.c-pointer {
+    cursor: pointer;
+}
+
 .d-flex {
     display: flex !important;
 }
